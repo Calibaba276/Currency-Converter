@@ -266,7 +266,7 @@ function debouncedConvert() {
 function swapCurrencies() {
   const temp = elements.fromCurrency.value;
   elements.fromCurrency.value = elements.toCurrency.value;
-  elements.toCurrency.value = temp;
+  elements.toCurrency.value = elements.fromCurrency.value;
   convert();
 }
 
