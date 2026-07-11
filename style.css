@@ -2,7 +2,8 @@
    Currency Converter — UI/UX focused styles
    ============================================ */
 
-:root {
+:root,
+[data-theme='dark'] {
   --color-bg: #0f1419;
   --color-surface: #1a2332;
   --color-surface-raised: #243044;
@@ -15,10 +16,33 @@
   --color-success: #22c55e;
   --color-error: #ef4444;
   --color-error-soft: rgba(239, 68, 68, 0.12);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.35);
+  --bg-gradient-1: rgba(59, 130, 246, 0.18);
+  --bg-gradient-2: rgba(34, 197, 94, 0.08);
+}
+
+[data-theme='light'] {
+  --color-bg: #f4f6f9;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f0f3f8;
+  --color-border: #d8e0ea;
+  --color-text: #1a2332;
+  --color-text-muted: #5a6b82;
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-soft: rgba(37, 99, 235, 0.1);
+  --color-success: #16a34a;
+  --color-error: #dc2626;
+  --color-error-soft: rgba(220, 38, 38, 0.08);
+  --shadow-card: 0 4px 24px rgba(15, 20, 25, 0.08);
+  --bg-gradient-1: rgba(59, 130, 246, 0.12);
+  --bg-gradient-2: rgba(34, 197, 94, 0.06);
+}
+
+:root {
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 20px;
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.35);
   --transition: 180ms ease;
   --font: 'Inter', system-ui, -apple-system, sans-serif;
   --tap-target: 44px;
@@ -47,8 +71,9 @@ body {
   justify-content: center;
   padding: 1.5rem;
   background-image:
-    radial-gradient(ellipse 80% 60% at 50% -20%, rgba(59, 130, 246, 0.18), transparent),
-    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(34, 197, 94, 0.08), transparent);
+    radial-gradient(ellipse 80% 60% at 50% -20%, var(--bg-gradient-1), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 100%, var(--bg-gradient-2), transparent);
+  transition: background-color var(--transition), color var(--transition);
 }
 
 /* Accessibility */
@@ -74,7 +99,65 @@ body {
 }
 
 .app__header {
+  position: relative;
   text-align: center;
+}
+
+.theme-toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: var(--tap-target);
+  height: var(--tap-target);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-raised);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+
+.theme-toggle:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.theme-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+.theme-toggle__icon {
+  position: absolute;
+  transition: opacity var(--transition), transform var(--transition);
+}
+
+.theme-toggle__icon--sun {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.5);
+}
+
+.theme-toggle__icon--moon {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+
+[data-theme='light'] .theme-toggle__icon--sun {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+
+[data-theme='light'] .theme-toggle__icon--moon {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.5);
+}
+
+[data-theme='light'] .theme-toggle {
+  color: var(--color-accent);
 }
 
 .app__logo {
@@ -179,6 +262,10 @@ body {
   color: var(--color-text-muted);
 }
 
+[data-theme='light'] .field-group__select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235a6b82' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+}
+
 /* Currency row */
 .currency-row {
   display: flex;
@@ -238,6 +325,13 @@ body {
   margin-bottom: 0.375rem;
 }
 
+.result__value-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
 .result__value {
   font-size: 2rem;
   font-weight: 700;
@@ -245,6 +339,43 @@ body {
   line-height: 1.2;
   color: var(--color-success);
   word-break: break-word;
+}
+
+.copy-btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), color var(--transition), opacity var(--transition);
+}
+
+.copy-btn:hover:not(:disabled) {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.copy-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+.copy-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.copy-btn--success {
+  color: var(--color-success);
+  border-color: var(--color-success);
+  background: rgba(34, 197, 94, 0.1);
 }
 
 .result__rate {
@@ -294,6 +425,31 @@ body {
 .app__updated {
   margin-top: 0.25rem;
   font-size: 0.75rem;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(1rem);
+  padding: 0.625rem 1.25rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-card);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-success);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition), transform var(--transition);
+  z-index: 100;
+}
+
+.toast--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 /* Responsive */

@@ -1,9 +1,10 @@
 /**
  * Currency Converter
- * Fetches live rates via Frankfurter API and updates the UI dynamically.
+ * Fetches live rates via ExchangeRate API and updates the UI dynamically.
  */
 
 const API_BASE = 'https://api.exchangerate.fun/latest';
+const THEME_STORAGE_KEY = 'theme';
 
 const CURRENCIES = [
   { code: 'USD', name: 'US Dollar', symbol: '$' },
@@ -45,15 +46,81 @@ const elements = {
   fromCurrency: document.getElementById('from-currency'),
   toCurrency: document.getElementById('to-currency'),
   swapBtn: document.getElementById('swap-btn'),
+  copyBtn: document.getElementById('copy-btn'),
+  themeToggle: document.getElementById('theme-toggle'),
   resultValue: document.getElementById('result-value'),
   rateInfo: document.getElementById('rate-info'),
   status: document.getElementById('status'),
   lastUpdated: document.getElementById('last-updated'),
   result: document.querySelector('.result'),
+  toast: document.getElementById('toast'),
 };
 
 let debounceTimer = null;
 let abortController = null;
+let toastTimer = null;
+
+function getTheme() {
+  return document.documentElement.getAttribute('data-theme') || 'dark';
+}
+
+function setTheme(theme, persist = false) {
+  document.documentElement.setAttribute('data-theme', theme);
+  if (persist) {
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }
+  elements.themeToggle.setAttribute(
+    'aria-label',
+    theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'
+  );
+}
+
+function toggleTheme() {
+  setTheme(getTheme() === 'dark' ? 'light' : 'dark', true);
+}
+
+function initTheme() {
+  elements.themeToggle.setAttribute(
+    'aria-label',
+    getTheme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'
+  );
+}
+
+function setCopyEnabled(enabled) {
+  elements.copyBtn.disabled = !enabled;
+}
+
+function showToast(message) {
+  clearTimeout(toastTimer);
+  elements.toast.textContent = message;
+  elements.toast.hidden = false;
+  elements.toast.classList.add('toast--visible');
+
+  toastTimer = setTimeout(() => {
+    elements.toast.classList.remove('toast--visible');
+    toastTimer = setTimeout(() => {
+      elements.toast.hidden = true;
+    }, 200);
+  }, 2000);
+}
+
+async function copyResult() {
+  const text = elements.resultValue.textContent.trim();
+  if (!text || text === '—') return;
+
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast('Copied!');
+  } catch {
+    showToast('Could not copy');
+  }
+}
+
+function updateResultDisplay(valueText, rateText, canCopy) {
+  elements.resultValue.textContent = valueText;
+  elements.rateInfo.textContent = rateText;
+  setCopyEnabled(canCopy);
+}
 
 function populateDropdowns() {
   const options = CURRENCIES.map(
@@ -98,6 +165,7 @@ function setStatus(message, type = '') {
 function setLoading(isLoading) {
   elements.result.classList.toggle('result--loading', isLoading);
   if (isLoading) {
+    setCopyEnabled(false);
     setStatus('Fetching latest rates…', 'loading');
   } else {
     setStatus('');
@@ -150,15 +218,13 @@ async function convert() {
   const to = elements.toCurrency.value;
 
   if (isNaN(amount) || amount < 0) {
-    elements.resultValue.textContent = '—';
-    elements.rateInfo.textContent = '';
+    updateResultDisplay('—', '', false);
     setStatus('Please enter a valid positive number.', 'error');
     return;
   }
 
   if (amount === 0) {
-    elements.resultValue.textContent = formatAmount(0, to);
-    elements.rateInfo.textContent = `1 ${from} = 0.00 ${to}`;
+    updateResultDisplay(formatAmount(0, to), `1 ${from} = 0.00 ${to}`, true);
     setStatus('');
     return;
   }
@@ -168,8 +234,11 @@ async function convert() {
   try {
     const { rate, result, date } = await fetchConversionRate(from, to, amount);
 
-    elements.resultValue.textContent = formatAmount(result, to);
-    elements.rateInfo.textContent = `1 ${from} = ${rate.toFixed(4)} ${to}`;
+    updateResultDisplay(
+      formatAmount(result, to),
+      `1 ${from} = ${rate.toFixed(4)} ${to}`,
+      true
+    );
 
     const formattedDate = new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -182,8 +251,7 @@ async function convert() {
   } catch (error) {
     if (error.name === 'AbortError') return;
 
-    elements.resultValue.textContent = '—';
-    elements.rateInfo.textContent = '';
+    updateResultDisplay('—', '', false);
     setStatus('Could not load exchange rates. Check your connection and try again.', 'error');
   } finally {
     setLoading(false);
@@ -203,12 +271,15 @@ function swapCurrencies() {
 }
 
 function init() {
+  initTheme();
   populateDropdowns();
 
   elements.amount.addEventListener('input', debouncedConvert);
   elements.fromCurrency.addEventListener('change', convert);
   elements.toCurrency.addEventListener('change', convert);
   elements.swapBtn.addEventListener('click', swapCurrencies);
+  elements.copyBtn.addEventListener('click', copyResult);
+  elements.themeToggle.addEventListener('click', toggleTheme);
 
   convert();
 }
