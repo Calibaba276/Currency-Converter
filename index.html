@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Convert between world currencies using live exchange rates">
+  <title>Currency Converter</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <main class="app">
+    <header class="app__header">
+      <div class="app__logo" aria-hidden="true">💱</div>
+      <h1 class="app__title">Currency Converter</h1>
+      <p class="app__subtitle">Real-time exchange rates for 30+ world currencies</p>
+    </header>
+
+    <section class="converter" aria-labelledby="converter-heading">
+      <h2 id="converter-heading" class="visually-hidden">Currency conversion form</h2>
+
+      <div class="converter__card">
+        <div class="field-group">
+          <label class="field-group__label" for="amount">Amount</label>
+          <div class="field-group__input-wrap">
+            <input
+              type="number"
+              id="amount"
+              class="field-group__input"
+              value="1"
+              min="0"
+              step="any"
+              inputmode="decimal"
+              aria-describedby="amount-hint"
+            >
+          </div>
+          <span id="amount-hint" class="field-group__hint">Enter the amount you want to convert</span>
+        </div>
+
+        <div class="currency-row">
+          <div class="field-group field-group--grow">
+            <label class="field-group__label" for="from-currency">From</label>
+            <select id="from-currency" class="field-group__select" aria-label="Source currency">
+              <option value="USD">USD — US Dollar</option>
+            </select>
+          </div>
+
+          <button
+            type="button"
+            id="swap-btn"
+            class="swap-btn"
+            aria-label="Swap currencies"
+            title="Swap currencies"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M7 16V4M7 4L3 8M7 4L11 8"/>
+              <path d="M17 8V20M17 20L21 16M17 20L13 16"/>
+            </svg>
+          </button>
+
+          <div class="field-group field-group--grow">
+            <label class="field-group__label" for="to-currency">To</label>
+            <select id="to-currency" class="field-group__select" aria-label="Target currency">
+              <option value="NGN">NGN — Nigerian Naira</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="result" role="status" aria-live="polite" aria-atomic="true">
+          <div class="result__label">Converted amount</div>
+          <div id="result-value" class="result__value">—</div>
+          <div id="rate-info" class="result__rate"></div>
+        </div>
+
+        <div id="status" class="status" role="alert" hidden></div>
+      </div>
+    </section>
+
+    <footer class="app__footer">
+      <p>Rates provided by <a href="https://github.com/haxqer/FreeExchangeRateApi" target="_blank" rel="noopener noreferrer">ExchangeRate API</a></p>
+      <p id="last-updated" class="app__updated"></p>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
